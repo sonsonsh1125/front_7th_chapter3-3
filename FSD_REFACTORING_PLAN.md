@@ -79,11 +79,11 @@ export interface PostReactions {
 
 **체크리스트**:
 
-- [ ] Post 엔티티 타입 정의 완료
-- [ ] Comment 엔티티 타입 정의 완료
-- [ ] User 엔티티 타입 정의 완료
-- [ ] Tag 엔티티 타입 정의 완료
-- [ ] 모든 타입이 index.ts에서 export됨
+- [x] Post 엔티티 타입 정의 완료
+- [x] Comment 엔티티 타입 정의 완료
+- [x] User 엔티티 타입 정의 완료
+- [x] Tag 엔티티 타입 정의 완료
+- [x] 모든 타입이 index.ts에서 export됨
 
 ---
 
@@ -140,10 +140,10 @@ export interface PostReactions {
 
 **체크리스트**:
 
-- [ ] shared/ui 폴더 구조 생성 완료
-- [ ] 모든 UI 컴포넌트가 적절한 폴더로 분리됨
-- [ ] 각 컴포넌트에 TypeScript 타입이 정의됨
-- [ ] 기존 import 경로가 정상 작동함
+- [x] shared/ui 폴더 구조 생성 완료
+- [x] 모든 UI 컴포넌트가 적절한 폴더로 분리됨
+- [x] 각 컴포넌트에 TypeScript 타입이 정의됨
+- [x] 기존 import 경로가 정상 작동함
 
 ---
 

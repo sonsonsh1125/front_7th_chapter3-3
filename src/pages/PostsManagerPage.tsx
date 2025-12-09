@@ -24,7 +24,9 @@ import {
   TableHeader,
   TableRow,
   Textarea,
-} from "../components"
+} from "../shared/ui"
+import { highlightText, buildQueryString, getURLParam, getURLNumberParam } from "../shared/lib/utils"
+import { DEFAULT_LIMIT, DEFAULT_SKIP, DEFAULT_SORT_ORDER } from "../shared/config"
 
 const PostsManager = () => {
   const navigate = useNavigate()
@@ -34,18 +36,18 @@ const PostsManager = () => {
   // 상태 관리
   const [posts, setPosts] = useState([])
   const [total, setTotal] = useState(0)
-  const [skip, setSkip] = useState(parseInt(queryParams.get("skip") || "0"))
-  const [limit, setLimit] = useState(parseInt(queryParams.get("limit") || "10"))
-  const [searchQuery, setSearchQuery] = useState(queryParams.get("search") || "")
+  const [skip, setSkip] = useState(getURLNumberParam(queryParams, "skip", DEFAULT_SKIP))
+  const [limit, setLimit] = useState(getURLNumberParam(queryParams, "limit", DEFAULT_LIMIT))
+  const [searchQuery, setSearchQuery] = useState(getURLParam(queryParams, "search"))
   const [selectedPost, setSelectedPost] = useState(null)
-  const [sortBy, setSortBy] = useState(queryParams.get("sortBy") || "")
-  const [sortOrder, setSortOrder] = useState(queryParams.get("sortOrder") || "asc")
+  const [sortBy, setSortBy] = useState(getURLParam(queryParams, "sortBy"))
+  const [sortOrder, setSortOrder] = useState(getURLParam(queryParams, "sortOrder", DEFAULT_SORT_ORDER))
   const [showAddDialog, setShowAddDialog] = useState(false)
   const [showEditDialog, setShowEditDialog] = useState(false)
   const [newPost, setNewPost] = useState({ title: "", body: "", userId: 1 })
   const [loading, setLoading] = useState(false)
   const [tags, setTags] = useState([])
-  const [selectedTag, setSelectedTag] = useState(queryParams.get("tag") || "")
+  const [selectedTag, setSelectedTag] = useState(getURLParam(queryParams, "tag"))
   const [comments, setComments] = useState({})
   const [selectedComment, setSelectedComment] = useState(null)
   const [newComment, setNewComment] = useState({ body: "", postId: null, userId: 1 })
@@ -57,14 +59,15 @@ const PostsManager = () => {
 
   // URL 업데이트 함수
   const updateURL = () => {
-    const params = new URLSearchParams()
-    if (skip) params.set("skip", skip.toString())
-    if (limit) params.set("limit", limit.toString())
-    if (searchQuery) params.set("search", searchQuery)
-    if (sortBy) params.set("sortBy", sortBy)
-    if (sortOrder) params.set("sortOrder", sortOrder)
-    if (selectedTag) params.set("tag", selectedTag)
-    navigate(`?${params.toString()}`)
+    const queryString = buildQueryString({
+      skip,
+      limit,
+      search: searchQuery,
+      sortBy,
+      sortOrder,
+      tag: selectedTag,
+    })
+    navigate(`?${queryString}`)
   }
 
   // 게시물 가져오기
@@ -268,7 +271,6 @@ const PostsManager = () => {
   // 댓글 좋아요
   const likeComment = async (id, postId) => {
     try {
-
       const response = await fetch(`/api/comments/${id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
@@ -277,7 +279,9 @@ const PostsManager = () => {
       const data = await response.json()
       setComments((prev) => ({
         ...prev,
-        [postId]: prev[postId].map((comment) => (comment.id === data.id ? {...data, likes: comment.likes + 1} : comment)),
+        [postId]: prev[postId].map((comment) =>
+          comment.id === data.id ? { ...data, likes: comment.likes + 1 } : comment,
+        ),
       }))
     } catch (error) {
       console.error("댓글 좋아요 오류:", error)
@@ -318,28 +322,13 @@ const PostsManager = () => {
 
   useEffect(() => {
     const params = new URLSearchParams(location.search)
-    setSkip(parseInt(params.get("skip") || "0"))
-    setLimit(parseInt(params.get("limit") || "10"))
-    setSearchQuery(params.get("search") || "")
-    setSortBy(params.get("sortBy") || "")
-    setSortOrder(params.get("sortOrder") || "asc")
-    setSelectedTag(params.get("tag") || "")
+    setSkip(getURLNumberParam(params, "skip", DEFAULT_SKIP))
+    setLimit(getURLNumberParam(params, "limit", DEFAULT_LIMIT))
+    setSearchQuery(getURLParam(params, "search"))
+    setSortBy(getURLParam(params, "sortBy"))
+    setSortOrder(getURLParam(params, "sortOrder", DEFAULT_SORT_ORDER))
+    setSelectedTag(getURLParam(params, "tag"))
   }, [location.search])
-
-  // 하이라이트 함수 추가
-  const highlightText = (text: string, highlight: string) => {
-    if (!text) return null
-    if (!highlight.trim()) {
-      return <span>{text}</span>
-    }
-    const regex = new RegExp(`(${highlight})`, "gi")
-    const parts = text.split(regex)
-    return (
-      <span>
-        {parts.map((part, i) => (regex.test(part) ? <mark key={i}>{part}</mark> : <span key={i}>{part}</span>))}
-      </span>
-    )
-  }
 
   // 게시물 테이블 렌더링
   const renderPostTable = () => (
