@@ -1,7 +1,8 @@
 import type { User } from "../model"
+import type { PostAuthor } from "../../post/model"
 
 interface UserAvatarProps {
-  user?: User
+  user?: User | PostAuthor
   onClick?: (user: { id: number }) => void
 }
 
