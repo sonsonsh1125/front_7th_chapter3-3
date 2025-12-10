@@ -1,12 +1,11 @@
 import { Plus } from "lucide-react"
 import { Button } from "../../../shared/ui"
-import { highlightText } from "../../../shared/lib/utils"
 import { useCommentList } from "../../../entities/comment/model"
+import { CommentList } from "../../../entities/comment/ui"
 import { useCommentCreate } from "../../../features/comment-create"
 import { useCommentEdit } from "../../../features/comment-edit"
 import { useCommentDelete } from "../../../features/comment-delete"
 import { useCommentLike } from "../../../features/comment-like"
-import { Edit2, ThumbsUp, Trash2 } from "lucide-react"
 
 interface CommentSectionProps {
   postId: number
@@ -43,28 +42,14 @@ export const CommentSection = ({
           댓글 추가
         </Button>
       </div>
-      <div className="space-y-1">
-        {comments.map((comment) => (
-          <div key={comment.id} className="flex items-center justify-between text-sm border-b pb-1">
-            <div className="flex items-center space-x-2 overflow-hidden">
-              <span className="font-medium truncate">{comment.user.username}:</span>
-              <span className="truncate">{highlightText(comment.body, searchQuery)}</span>
-            </div>
-            <div className="flex items-center space-x-1">
-              <Button variant="ghost" size="sm" onClick={() => commentLike.likeComment(comment.id, postId)}>
-                <ThumbsUp className="w-3 h-3" />
-                <span className="ml-1 text-xs">{comment.likes}</span>
-              </Button>
-              <Button variant="ghost" size="sm" onClick={() => commentEdit.openDialog(comment)}>
-                <Edit2 className="w-3 h-3" />
-              </Button>
-              <Button variant="ghost" size="sm" onClick={() => commentDelete.deleteComment(comment.id, postId)}>
-                <Trash2 className="w-3 h-3" />
-              </Button>
-            </div>
-          </div>
-        ))}
-      </div>
+      <CommentList
+        comments={comments}
+        postId={postId}
+        searchQuery={searchQuery}
+        onLikeClick={commentLike.likeComment}
+        onEditClick={commentEdit.openDialog}
+        onDeleteClick={commentDelete.deleteComment}
+      />
     </div>
   )
 }
