@@ -213,10 +213,10 @@ export const usePostStore = create((set) => ({
 
 **체크리스트**:
 
-- [ ] 상태 관리 라이브러리 설치 완료
-- [ ] 게시물 관련 상태가 전역 상태로 관리됨
-- [ ] 댓글 관련 상태가 전역 상태로 관리됨
-- [ ] Props Drilling이 최소화됨
+- [x] 상태 관리 라이브러리 설치 완료
+- [x] 게시물 관련 상태가 전역 상태로 관리됨
+- [x] 댓글 관련 상태가 전역 상태로 관리됨
+- [x] Props Drilling이 최소화됨
 
 ---
 
@@ -262,12 +262,12 @@ export const usePostStore = create((set) => ({
 
 **체크리스트**:
 
-- [ ] 각 기능이 독립적인 폴더로 분리됨
-- [ ] UI와 로직이 분리됨 (ui/, model/)
-- [ ] 각 기능이 단일 책임을 가짐
-- [ ] 이벤트 처리가 적절히 분리됨
-- [ ] features가 entities의 api를 적절히 사용함
-- [ ] useEffect 관리가 적절히 이루어짐 (각 feature의 model 훅에서 관리)
+- [x] 각 기능이 독립적인 폴더로 분리됨
+- [x] UI와 로직이 분리됨 (ui/, model/)
+- [x] 각 기능이 단일 책임을 가짐
+- [x] 이벤트 처리가 적절히 분리됨
+- [x] features가 entities의 api를 적절히 사용함
+- [x] useEffect 관리가 적절히 이루어짐 (각 feature의 model 훅에서 관리)
 
 ---
 
