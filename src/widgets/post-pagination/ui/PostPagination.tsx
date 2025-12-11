@@ -4,8 +4,13 @@ import { usePostPagination } from "../../../entities/post/model"
 /**
  * 게시물 페이지네이션 위젯
  */
-export const PostPagination = () => {
-  const { limit, canGoPrevious, canGoNext, goToPreviousPage, goToNextPage, changeLimit } = usePostPagination()
+interface PostPaginationProps {
+  total: number
+}
+
+export const PostPagination = ({ total }: PostPaginationProps) => {
+  const { limit, skip, canGoPrevious, goToPreviousPage, goToNextPage, changeLimit } = usePostPagination()
+  const canGoNext = skip + limit < total
 
   return (
     <div className="flex justify-between items-center">

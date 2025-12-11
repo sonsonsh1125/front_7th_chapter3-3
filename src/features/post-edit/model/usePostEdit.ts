@@ -1,17 +1,14 @@
 import { useState } from "react"
-import { updatePost as updatePostApi } from "../../../entities/post/api"
-import { usePostStore } from "../../../entities/post/model"
+import { useUpdatePostMutation } from "../../../entities/post/model/queries"
 import type { Post } from "../../../entities/post/model"
-import type { UpdatePostRequest } from "../../../entities/post/api"
 
 /**
  * 게시물 수정 기능 훅
  */
 export const usePostEdit = (isOpen?: boolean, onOpenChange?: (open: boolean) => void) => {
   const [internalIsOpen, setInternalIsOpen] = useState(false)
-  const [isLoading, setIsLoading] = useState(false)
   const [selectedPost, setSelectedPost] = useState<Post | null>(null)
-  const { updatePost: updatePostInStore } = usePostStore()
+  const updatePostMutation = useUpdatePostMutation()
 
   const isDialogOpen = isOpen !== undefined ? isOpen : internalIsOpen
   const setIsDialogOpen = onOpenChange || setInternalIsOpen
@@ -35,25 +32,23 @@ export const usePostEdit = (isOpen?: boolean, onOpenChange?: (open: boolean) => 
   const editPost = async () => {
     if (!selectedPost) return
 
-    setIsLoading(true)
     try {
-      const updateData: UpdatePostRequest = {
-        title: selectedPost.title,
-        body: selectedPost.body,
-      }
-      const updatedPost = await updatePostApi(selectedPost.id, updateData)
-      updatePostInStore(selectedPost.id, updatedPost)
+      await updatePostMutation.mutateAsync({
+        id: selectedPost.id,
+        data: {
+          title: selectedPost.title,
+          body: selectedPost.body,
+        },
+      })
       closeDialog()
-    } catch (error) {
-      console.error("게시물 수정 오류:", error)
-    } finally {
-      setIsLoading(false)
+    } catch {
+      // onError에서 처리
     }
   }
 
   return {
     isOpen: isDialogOpen,
-    isLoading,
+    isLoading: updatePostMutation.isPending,
     selectedPost,
     openDialog,
     closeDialog,

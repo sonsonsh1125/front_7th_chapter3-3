@@ -1,23 +1,21 @@
 import { useState } from "react"
-import { deletePost as deletePostApi } from "../../../entities/post/api"
-import { usePostStore } from "../../../entities/post/model"
+import { useDeletePostMutation } from "../../../entities/post/model/queries"
 
 /**
  * 게시물 삭제 기능 훅
  */
 export const usePostDelete = () => {
   const [isDeleting, setIsDeleting] = useState(false)
-  const { removePost } = usePostStore()
+  const deletePostMutation = useDeletePostMutation()
 
   const deletePost = async (id: number) => {
     if (isDeleting) return
 
     setIsDeleting(true)
     try {
-      await deletePostApi(id)
-      removePost(id)
+      await deletePostMutation.mutateAsync(id)
     } catch (error) {
-      console.error("게시물 삭제 오류:", error)
+      // onError에서 처리
     } finally {
       setIsDeleting(false)
     }

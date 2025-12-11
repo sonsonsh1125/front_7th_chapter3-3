@@ -1,5 +1,5 @@
 import { useState } from "react"
-import { likeComment as likeCommentApi } from "../../../entities/comment/api"
+import { useLikeCommentMutation } from "../../../entities/comment/model/queries"
 import { useCommentStore } from "../../../entities/comment/model"
 
 /**
@@ -8,6 +8,7 @@ import { useCommentStore } from "../../../entities/comment/model"
 export const useCommentLike = () => {
   const [isLiking, setIsLiking] = useState(false)
   const { comments, updateComment: updateCommentInStore } = useCommentStore()
+  const likeCommentMutation = useLikeCommentMutation()
 
   const likeComment = async (id: number, postId: number) => {
     if (isLiking) return
@@ -17,8 +18,9 @@ export const useCommentLike = () => {
 
     setIsLiking(true)
     try {
-      const updatedComment = await likeCommentApi(id, currentComment.likes + 1)
-      updateCommentInStore(postId, id, { ...updatedComment, likes: currentComment.likes + 1 })
+      await likeCommentMutation.mutateAsync({ id, likes: currentComment.likes + 1, postId })
+      // Optimistic update
+      updateCommentInStore(postId, id, { ...currentComment, likes: currentComment.likes + 1 })
     } catch (error) {
       console.error("댓글 좋아요 오류:", error)
     } finally {

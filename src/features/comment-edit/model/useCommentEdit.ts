@@ -1,6 +1,5 @@
 import { useState } from "react"
-import { updateComment as updateCommentApi } from "../../../entities/comment/api"
-import { useCommentStore } from "../../../entities/comment/model"
+import { useUpdateCommentMutation } from "../../../entities/comment/model/queries"
 import type { Comment } from "../../../entities/comment/model"
 
 /**
@@ -8,9 +7,8 @@ import type { Comment } from "../../../entities/comment/model"
  */
 export const useCommentEdit = (isOpen?: boolean, onOpenChange?: (open: boolean) => void) => {
   const [internalIsOpen, setInternalIsOpen] = useState(false)
-  const [isLoading, setIsLoading] = useState(false)
   const [selectedComment, setSelectedComment] = useState<Comment | null>(null)
-  const { updateComment: updateCommentInStore } = useCommentStore()
+  const updateCommentMutation = useUpdateCommentMutation()
 
   const isDialogOpen = isOpen !== undefined ? isOpen : internalIsOpen
   const setIsDialogOpen = onOpenChange || setInternalIsOpen
@@ -34,23 +32,20 @@ export const useCommentEdit = (isOpen?: boolean, onOpenChange?: (open: boolean) 
   const editComment = async () => {
     if (!selectedComment) return
 
-    setIsLoading(true)
     try {
-      const updatedComment = await updateCommentApi(selectedComment.id, {
-        body: selectedComment.body,
+      await updateCommentMutation.mutateAsync({
+        id: selectedComment.id,
+        comment: { body: selectedComment.body },
       })
-      updateCommentInStore(updatedComment.postId, updatedComment.id, updatedComment)
       closeDialog()
-    } catch (error) {
-      console.error("댓글 수정 오류:", error)
-    } finally {
-      setIsLoading(false)
+    } catch {
+      // onError에서 처리
     }
   }
 
   return {
     isOpen: isDialogOpen,
-    isLoading,
+    isLoading: updateCommentMutation.isPending,
     selectedComment,
     openDialog,
     closeDialog,
@@ -58,4 +53,3 @@ export const useCommentEdit = (isOpen?: boolean, onOpenChange?: (open: boolean) 
     editComment,
   }
 }
-

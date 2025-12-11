@@ -1,6 +1,5 @@
 import { useState } from "react"
-import { addPost as addPostApi } from "../../../entities/post/api"
-import { usePostStore } from "../../../entities/post/model"
+import { useAddPostMutation } from "../../../entities/post/model/queries"
 import type { CreatePostRequest } from "../../../entities/post/api"
 
 /**
@@ -8,13 +7,12 @@ import type { CreatePostRequest } from "../../../entities/post/api"
  */
 export const usePostCreate = (isOpen?: boolean, onOpenChange?: (open: boolean) => void) => {
   const [internalIsOpen, setInternalIsOpen] = useState(false)
-  const [isLoading, setIsLoading] = useState(false)
   const [formData, setFormData] = useState<CreatePostRequest>({
     title: "",
     body: "",
     userId: 1,
   })
-  const { addPost: addPostToStore } = usePostStore()
+  const addPostMutation = useAddPostMutation()
 
   const isDialogOpen = isOpen !== undefined ? isOpen : internalIsOpen
   const setIsDialogOpen = onOpenChange || setInternalIsOpen
@@ -34,21 +32,17 @@ export const usePostCreate = (isOpen?: boolean, onOpenChange?: (open: boolean) =
       return
     }
 
-    setIsLoading(true)
     try {
-      const newPost = await addPostApi(formData)
-      addPostToStore(newPost)
+      await addPostMutation.mutateAsync(formData)
       closeDialog()
-    } catch (error) {
-      console.error("게시물 생성 오류:", error)
-    } finally {
-      setIsLoading(false)
+    } catch {
+      // onError에서 처리
     }
   }
 
   return {
     isOpen: isDialogOpen,
-    isLoading,
+    isLoading: addPostMutation.isPending,
     formData,
     openDialog,
     closeDialog,

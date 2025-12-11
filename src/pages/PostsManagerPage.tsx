@@ -15,13 +15,14 @@ import { PostDetailDialog } from "../widgets/post-detail"
 import { PostFilters } from "../widgets/post-filters"
 import { PostPagination } from "../widgets/post-pagination"
 import type { Post } from "../entities/post/model"
+import { usePostList } from "../entities/post/model"
 
 const PostsManager = () => {
   const navigate = useNavigate()
   const location = useLocation()
   const queryParams = new URLSearchParams(location.search)
 
-  // Zustand 스토어
+  // Zustand 스토어 (클라이언트 상태: skip/limit)
   const { skip, limit, setSkip, setLimit } = usePostStore()
 
   // 로컬 UI 상태
@@ -38,6 +39,7 @@ const PostsManager = () => {
   const searchQuery = getURLParam(queryParams, "search")
   const sortBy = getURLParam(queryParams, "sortBy")
   const sortOrder = getURLParam(queryParams, "sortOrder", DEFAULT_SORT_ORDER)
+  const { total } = usePostList(selectedTag, searchQuery)
 
   // URL 업데이트 함수
   const updateURL = () => {
@@ -117,7 +119,7 @@ const PostsManager = () => {
           />
 
           {/* 페이지네이션 */}
-          <PostPagination />
+          <PostPagination total={total} />
         </div>
       </CardContent>
 

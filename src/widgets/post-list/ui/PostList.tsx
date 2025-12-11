@@ -29,7 +29,7 @@ export const PostList = ({
   showUserModal,
   onUserModalChange,
 }: PostListProps) => {
-  const { posts, loading } = usePostList(selectedTag)
+  const { posts, loading } = usePostList(selectedTag, searchQuery)
   const postEdit = usePostEdit(showEditDialog, onEditDialogChange)
   const postDelete = usePostDelete()
   const postSearch = usePostSearch(searchQuery)
@@ -51,7 +51,7 @@ export const PostList = ({
         </TableRow>
       </TableHeader>
       <TableBody>
-        {posts.map((post) => (
+        {posts.map((post: Post) => (
           <PostTableRow
             key={post.id}
             post={post}

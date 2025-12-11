@@ -1,23 +1,21 @@
 import { useState } from "react"
-import { deleteComment as deleteCommentApi } from "../../../entities/comment/api"
-import { useCommentStore } from "../../../entities/comment/model"
+import { useDeleteCommentMutation } from "../../../entities/comment/model/queries"
 
 /**
  * 댓글 삭제 기능 훅
  */
 export const useCommentDelete = () => {
   const [isDeleting, setIsDeleting] = useState(false)
-  const { removeComment } = useCommentStore()
+  const deleteCommentMutation = useDeleteCommentMutation()
 
   const deleteComment = async (id: number, postId: number) => {
     if (isDeleting) return
 
     setIsDeleting(true)
     try {
-      await deleteCommentApi(id)
-      removeComment(postId, id)
+      await deleteCommentMutation.mutateAsync({ id, postId })
     } catch (error) {
-      console.error("댓글 삭제 오류:", error)
+      // onError에서 처리
     } finally {
       setIsDeleting(false)
     }
@@ -28,4 +26,3 @@ export const useCommentDelete = () => {
     isDeleting,
   }
 }
-

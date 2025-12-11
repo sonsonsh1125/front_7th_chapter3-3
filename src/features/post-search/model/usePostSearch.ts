@@ -1,14 +1,10 @@
 import { useState, useEffect } from "react"
-import { searchPosts as searchPostsApi } from "../../../entities/post/api"
-import { usePostStore } from "../../../entities/post/model"
 
 /**
  * 게시물 검색 기능 훅
  */
 export const usePostSearch = (initialQuery?: string) => {
   const [searchQuery, setSearchQuery] = useState(initialQuery || "")
-  const [isSearching, setIsSearching] = useState(false)
-  const { setPosts, setTotal, setLoading } = usePostStore()
 
   useEffect(() => {
     if (initialQuery !== undefined) {
@@ -21,22 +17,8 @@ export const usePostSearch = (initialQuery?: string) => {
   }
 
   const search = async () => {
-    if (!searchQuery.trim()) {
-      return
-    }
-
-    setIsSearching(true)
-    setLoading(true)
-    try {
-      const data = await searchPostsApi(searchQuery)
-      setPosts(data.posts)
-      setTotal(data.total)
-    } catch (error) {
-      console.error("게시물 검색 오류:", error)
-    } finally {
-      setIsSearching(false)
-      setLoading(false)
-    }
+    // 쿼리는 usePostList에서 처리하므로 여기서는 검색어만 관리
+    return
   }
 
   const clearSearch = () => {
@@ -45,7 +27,7 @@ export const usePostSearch = (initialQuery?: string) => {
 
   return {
     searchQuery,
-    isSearching,
+    isSearching: false,
     updateSearchQuery,
     search,
     clearSearch,

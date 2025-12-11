@@ -1,4 +1,5 @@
 import { useEffect } from "react"
+import { useQuery } from "@tanstack/react-query"
 import { fetchComments as fetchCommentsApi } from "../api"
 import { useCommentStore } from "./store"
 
@@ -8,21 +9,20 @@ import { useCommentStore } from "./store"
 export const useCommentList = (postId: number) => {
   const { comments, setComments } = useCommentStore()
 
+  const query = useQuery({
+    queryKey: ["comments", postId],
+    queryFn: () => fetchCommentsApi(postId),
+    staleTime: 1000 * 30,
+  })
+
   useEffect(() => {
-    const fetchComments = async () => {
-      if (comments[postId]) return // 이미 불러온 댓글이 있으면 다시 불러오지 않음
-      try {
-        const data = await fetchCommentsApi(postId)
-        setComments(postId, data.comments)
-      } catch (error) {
-        console.error("댓글 가져오기 오류:", error)
-      }
+    if (query.data) {
+      setComments(postId, query.data.comments)
     }
-    fetchComments()
-  }, [postId, comments, setComments])
+  }, [postId, query.data, setComments])
 
   return {
     comments: comments[postId] || [],
+    isLoading: query.isLoading || query.isFetching,
   }
 }
-

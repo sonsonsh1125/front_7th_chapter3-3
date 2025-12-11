@@ -1,6 +1,5 @@
 import { useState } from "react"
-import { addComment as addCommentApi } from "../../../entities/comment/api"
-import { useCommentStore } from "../../../entities/comment/model"
+import { useAddCommentMutation } from "../../../entities/comment/model/queries"
 import type { CreateCommentRequest } from "../../../entities/comment/api"
 
 /**
@@ -8,13 +7,12 @@ import type { CreateCommentRequest } from "../../../entities/comment/api"
  */
 export const useCommentCreate = (isOpen?: boolean, onOpenChange?: (open: boolean) => void) => {
   const [internalIsOpen, setInternalIsOpen] = useState(false)
-  const [isLoading, setIsLoading] = useState(false)
   const [formData, setFormData] = useState<CreateCommentRequest>({
     body: "",
     postId: 0,
     userId: 1,
   })
-  const { addComment: addCommentToStore } = useCommentStore()
+  const addCommentMutation = useAddCommentMutation()
 
   const isDialogOpen = isOpen !== undefined ? isOpen : internalIsOpen
   const setIsDialogOpen = onOpenChange || setInternalIsOpen
@@ -38,21 +36,17 @@ export const useCommentCreate = (isOpen?: boolean, onOpenChange?: (open: boolean
       return
     }
 
-    setIsLoading(true)
     try {
-      const newComment = await addCommentApi(formData)
-      addCommentToStore(formData.postId, newComment)
+      await addCommentMutation.mutateAsync(formData)
       closeDialog()
-    } catch (error) {
-      console.error("댓글 생성 오류:", error)
-    } finally {
-      setIsLoading(false)
+    } catch {
+      // onError에서 처리
     }
   }
 
   return {
     isOpen: isDialogOpen,
-    isLoading,
+    isLoading: addCommentMutation.isPending,
     formData,
     openDialog,
     closeDialog,
@@ -60,4 +54,3 @@ export const useCommentCreate = (isOpen?: boolean, onOpenChange?: (open: boolean
     createComment,
   }
 }
-

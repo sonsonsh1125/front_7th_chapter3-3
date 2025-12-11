@@ -1,5 +1,5 @@
 import { useState } from "react"
-import { fetchUserById } from "../../../entities/user/api"
+import { useUserQuery } from "../../../entities/user/model/queries"
 import type { User } from "../../../entities/user/model"
 
 /**
@@ -7,23 +7,17 @@ import type { User } from "../../../entities/user/model"
  */
 export const useUserView = (isOpen?: boolean, onOpenChange?: (open: boolean) => void) => {
   const [internalIsOpen, setInternalIsOpen] = useState(false)
-  const [isLoading, setIsLoading] = useState(false)
   const [selectedUser, setSelectedUser] = useState<User | null>(null)
+  const [userId, setUserId] = useState<number | null>(null)
+  const userQuery = useUserQuery(userId ?? undefined, { enabled: !!userId })
 
   const isModalOpen = isOpen !== undefined ? isOpen : internalIsOpen
   const setIsModalOpen = onOpenChange || setInternalIsOpen
 
   const openModal = async (user: { id: number }) => {
-    setIsLoading(true)
     setIsModalOpen(true)
-    try {
-      const userData = await fetchUserById(user.id)
-      setSelectedUser(userData)
-    } catch (error) {
-      console.error("사용자 정보 가져오기 오류:", error)
-    } finally {
-      setIsLoading(false)
-    }
+    setUserId(user.id)
+    // selectedUser는 쿼리 데이터로 갱신
   }
 
   const closeModal = () => {
@@ -33,8 +27,8 @@ export const useUserView = (isOpen?: boolean, onOpenChange?: (open: boolean) => 
 
   return {
     isOpen: isModalOpen,
-    isLoading,
-    selectedUser,
+    isLoading: userQuery.isFetching || userQuery.isLoading,
+    selectedUser: userQuery.data || selectedUser,
     openModal,
     closeModal,
   }

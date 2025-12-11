@@ -1,68 +1,25 @@
-import { useEffect, useCallback } from "react"
-import { fetchPosts as fetchPostsApi, fetchPostsByTag as fetchPostsByTagApi } from "../api"
-import { fetchUsers } from "../../user/api"
 import { usePostStore } from "./store"
+import { usePostsQuery, useSearchPostsQuery } from "./queries"
+import type { Post } from "./types"
+import type { PostsResponse } from "../api"
 
 /**
  * 게시물 목록 데이터 페칭 훅 (entities 레이어)
  */
-export const usePostList = (selectedTag?: string) => {
-  const { posts, loading, skip, limit, setPosts, setTotal, setLoading } = usePostStore()
+export const usePostList = (selectedTag?: string, searchQuery?: string) => {
+  const { skip, limit } = usePostStore()
+  const isSearching = !!searchQuery && searchQuery.trim().length > 0
+  const listQuery = usePostsQuery({ skip, limit, tag: selectedTag })
+  const searchQueryResult = useSearchPostsQuery(searchQuery || "", { enabled: isSearching })
 
-  const fetchPosts = useCallback(async () => {
-    setLoading(true)
-    try {
-      const [postsData, usersData] = await Promise.all([fetchPostsApi(limit, skip), fetchUsers(0, "username,image")])
-      const postsWithUsers = postsData.posts.map((post) => ({
-        ...post,
-        author: usersData.users.find((user) => user.id === post.userId),
-      }))
-      setPosts(postsWithUsers)
-      setTotal(postsData.total)
-    } catch (error) {
-      console.error("게시물 가져오기 오류:", error)
-    } finally {
-      setLoading(false)
-    }
-  }, [limit, skip, setLoading, setPosts, setTotal])
-
-  const fetchPostsByTag = useCallback(
-    async (tag: string) => {
-      if (!tag || tag === "all") {
-        fetchPosts()
-        return
-      }
-      setLoading(true)
-      try {
-        const [postsData, usersData] = await Promise.all([fetchPostsByTagApi(tag), fetchUsers(0, "username,image")])
-
-        const postsWithUsers = postsData.posts.map((post) => ({
-          ...post,
-          author: usersData.users.find((user) => user.id === post.userId),
-        }))
-
-        setPosts(postsWithUsers)
-        setTotal(postsData.total)
-      } catch (error) {
-        console.error("태그별 게시물 가져오기 오류:", error)
-      } finally {
-        setLoading(false)
-      }
-    },
-    [fetchPosts, setLoading, setPosts, setTotal]
-  )
-
-  useEffect(() => {
-    if (selectedTag) {
-      fetchPostsByTag(selectedTag)
-    } else {
-      fetchPosts()
-    }
-  }, [skip, limit, selectedTag, fetchPosts, fetchPostsByTag])
+  const listData = listQuery.data as { posts: Post[]; total: number } | undefined
+  const searchData = searchQueryResult.data as PostsResponse | undefined
 
   return {
-    posts,
-    loading,
+    posts: isSearching ? searchData?.posts || [] : listData?.posts || [],
+    total: isSearching ? (searchData?.total ?? 0) : (listData?.total ?? 0),
+    loading: isSearching
+      ? searchQueryResult.isLoading || searchQueryResult.isFetching
+      : listQuery.isLoading || listQuery.isFetching,
   }
 }
-
