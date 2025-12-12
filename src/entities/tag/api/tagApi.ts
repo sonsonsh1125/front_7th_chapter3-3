@@ -1,6 +1,7 @@
 import type { Tag } from "../model"
 
-const API_BASE = import.meta.env.VITE_API_BASE || "/api"
+// 프로덕션에서는 직접 API를 호출, 개발 환경에서는 proxy 사용
+const API_BASE = import.meta.env.VITE_API_BASE || (import.meta.env.PROD ? "https://dummyjson.com" : "/api")
 
 /**
  * 태그 목록 조회
