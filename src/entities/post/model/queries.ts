@@ -31,7 +31,9 @@ export const usePostsQuery = (params: { skip: number; limit: number; tag?: strin
       return { posts: attachUsers(postsData, users), total: postsData.total }
     },
     placeholderData: (prev) => prev,
-    onError: (error) => notifyError("게시물 목록을 불러오지 못했습니다.", error),
+    meta: {
+      onError: (error: unknown) => notifyError("게시물 목록을 불러오지 못했습니다.", error),
+    },
   })
 }
 
@@ -44,7 +46,9 @@ export const useSearchPostsQuery = (query: string, options?: { enabled?: boolean
     },
     enabled: options?.enabled ?? !!query,
     staleTime: 1000 * 30,
-    onError: (error) => notifyError("게시물 검색에 실패했습니다.", error),
+    meta: {
+      onError: (error: unknown) => notifyError("게시물 검색에 실패했습니다.", error),
+    },
   })
 }
 
