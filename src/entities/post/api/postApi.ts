@@ -1,5 +1,7 @@
 import type { Post } from "../model"
 
+const API_BASE = import.meta.env.VITE_API_BASE || "/api"
+
 /**
  * 게시물 목록 응답 타입
  */
@@ -34,7 +36,7 @@ export interface UpdatePostRequest {
  */
 export const fetchPosts = async (limit: number, skip: number): Promise<PostsResponse> => {
   try {
-    const response = await fetch(`/api/posts?limit=${limit}&skip=${skip}`)
+    const response = await fetch(`${API_BASE}/posts?limit=${limit}&skip=${skip}`)
     if (!response.ok) {
       throw new Error(`Failed to fetch posts: ${response.statusText}`)
     }
@@ -51,7 +53,7 @@ export const fetchPosts = async (limit: number, skip: number): Promise<PostsResp
  */
 export const searchPosts = async (query: string): Promise<PostsResponse> => {
   try {
-    const response = await fetch(`/api/posts/search?q=${encodeURIComponent(query)}`)
+    const response = await fetch(`${API_BASE}/posts/search?q=${encodeURIComponent(query)}`)
     if (!response.ok) {
       throw new Error(`Failed to search posts: ${response.statusText}`)
     }
@@ -68,7 +70,7 @@ export const searchPosts = async (query: string): Promise<PostsResponse> => {
  */
 export const fetchPostsByTag = async (tag: string): Promise<PostsResponse> => {
   try {
-    const response = await fetch(`/api/posts/tag/${encodeURIComponent(tag)}`)
+    const response = await fetch(`${API_BASE}/posts/tag/${encodeURIComponent(tag)}`)
     if (!response.ok) {
       throw new Error(`Failed to fetch posts by tag: ${response.statusText}`)
     }
@@ -85,7 +87,7 @@ export const fetchPostsByTag = async (tag: string): Promise<PostsResponse> => {
  */
 export const addPost = async (post: CreatePostRequest): Promise<Post> => {
   try {
-    const response = await fetch("/api/posts/add", {
+    const response = await fetch(`${API_BASE}/posts/add`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(post),
@@ -106,7 +108,7 @@ export const addPost = async (post: CreatePostRequest): Promise<Post> => {
  */
 export const updatePost = async (id: number, post: UpdatePostRequest): Promise<Post> => {
   try {
-    const response = await fetch(`/api/posts/${id}`, {
+    const response = await fetch(`${API_BASE}/posts/${id}`, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(post),
@@ -127,7 +129,7 @@ export const updatePost = async (id: number, post: UpdatePostRequest): Promise<P
  */
 export const deletePost = async (id: number): Promise<void> => {
   try {
-    const response = await fetch(`/api/posts/${id}`, {
+    const response = await fetch(`${API_BASE}/posts/${id}`, {
       method: "DELETE",
     })
     if (!response.ok) {
@@ -138,4 +140,3 @@ export const deletePost = async (id: number): Promise<void> => {
     throw error
   }
 }
-

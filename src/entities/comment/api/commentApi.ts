@@ -1,5 +1,7 @@
 import type { Comment } from "../model"
 
+const API_BASE = import.meta.env.VITE_API_BASE || "/api"
+
 /**
  * 댓글 목록 응답 타입
  */
@@ -38,7 +40,7 @@ export interface LikeCommentRequest {
  */
 export const fetchComments = async (postId: number): Promise<CommentsResponse> => {
   try {
-    const response = await fetch(`/api/comments/post/${postId}`)
+    const response = await fetch(`${API_BASE}/comments/post/${postId}`)
     if (!response.ok) {
       throw new Error(`Failed to fetch comments: ${response.statusText}`)
     }
@@ -55,7 +57,7 @@ export const fetchComments = async (postId: number): Promise<CommentsResponse> =
  */
 export const addComment = async (comment: CreateCommentRequest): Promise<Comment> => {
   try {
-    const response = await fetch("/api/comments/add", {
+    const response = await fetch(`${API_BASE}/comments/add`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(comment),
@@ -76,7 +78,7 @@ export const addComment = async (comment: CreateCommentRequest): Promise<Comment
  */
 export const updateComment = async (id: number, comment: UpdateCommentRequest): Promise<Comment> => {
   try {
-    const response = await fetch(`/api/comments/${id}`, {
+    const response = await fetch(`${API_BASE}/comments/${id}`, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(comment),
@@ -97,7 +99,7 @@ export const updateComment = async (id: number, comment: UpdateCommentRequest): 
  */
 export const deleteComment = async (id: number): Promise<void> => {
   try {
-    const response = await fetch(`/api/comments/${id}`, {
+    const response = await fetch(`${API_BASE}/comments/${id}`, {
       method: "DELETE",
     })
     if (!response.ok) {
@@ -114,7 +116,7 @@ export const deleteComment = async (id: number): Promise<void> => {
  */
 export const likeComment = async (id: number, likes: number): Promise<Comment> => {
   try {
-    const response = await fetch(`/api/comments/${id}`, {
+    const response = await fetch(`${API_BASE}/comments/${id}`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ likes }),
@@ -129,4 +131,3 @@ export const likeComment = async (id: number, likes: number): Promise<Comment> =
     throw error
   }
 }
-

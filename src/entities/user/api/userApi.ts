@@ -1,5 +1,7 @@
 import type { User } from "../model"
 
+const API_BASE = import.meta.env.VITE_API_BASE || "/api"
+
 /**
  * 사용자 목록 응답 타입
  */
@@ -17,11 +19,10 @@ export interface UsersResponse {
  */
 export const fetchUsers = async (limit: number = 0, select?: string): Promise<UsersResponse> => {
   try {
-    let url = `/api/users?limit=${limit}`
-    if (select) {
-      url += `&select=${encodeURIComponent(select)}`
-    }
-    const response = await fetch(url)
+    const params = new URLSearchParams()
+    params.set("limit", String(limit))
+    if (select) params.set("select", select)
+    const response = await fetch(`${API_BASE}/users?${params.toString()}`)
     if (!response.ok) {
       throw new Error(`Failed to fetch users: ${response.statusText}`)
     }
@@ -38,7 +39,7 @@ export const fetchUsers = async (limit: number = 0, select?: string): Promise<Us
  */
 export const fetchUserById = async (id: number): Promise<User> => {
   try {
-    const response = await fetch(`/api/users/${id}`)
+    const response = await fetch(`${API_BASE}/users/${id}`)
     if (!response.ok) {
       throw new Error(`Failed to fetch user: ${response.statusText}`)
     }
@@ -49,4 +50,3 @@ export const fetchUserById = async (id: number): Promise<User> => {
     throw error
   }
 }
-
